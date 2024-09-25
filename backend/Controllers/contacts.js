@@ -2,18 +2,18 @@ const Contacts = require('../Models/contact');
 const mongoose = require('mongoose')
 // get all contacts
 const getContacts = async (req,res)=>{
-    const contacts = Contacts.find({});
+    
     //pages
-    const page = Number(req.query.page);
+    const page = Number(req.query.page) || 1;
     const limit = 5;
     const skip = (page - 1)*limit;
-    contacts.skip(skip).limit(limit);
+    const contacts = await Contacts.find({}).skip(skip).limit(limit);
     res.status(200).json(contacts)
 }
 
 // create contact
 const createContact = async (req,res)=>{
-    const {name,phone,address,note} = req.body;
+    let {name,phone,address,note} = req.body;
     if(!name){
         res.status(400).json({msg:"please add your name"});
     }
@@ -23,6 +23,7 @@ const createContact = async (req,res)=>{
     if(!address){
         res.status(400).json({msg:"please add your address"});
     }
+    phone = parseFloat(phone.toString().slice(1))
     Contacts.create({name,phone,address,note})
     res.status(201).json({"msg":"done"})
 }
